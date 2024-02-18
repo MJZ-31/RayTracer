@@ -1,186 +1,101 @@
 #include <array>
-#include <cmath>
-#include <exception>
-#include <stdexcept>
-#include <string>
 
-class dimension_mismatch : public std::logic_error {
+template <std::size_t D>
+using Vector = std::array<double, D>;
 
-    public:
+template <std::size_t W, std::size_t H>
+using Matrix = std::array<std::array<double, H>, W>;
 
-        dimension_mismatch(std::string msg) : std::logic_error(msg) {}
-};
+// Calculates the length of the given Vector.
+template <std::size_t D>
+double length(const Vector<D>& vector);
 
-template <typename T>
-class Vector;
+// Adds together Vector a and Vector b.
+template <std::size_t D>
+Vector<D> add(const Vector<D>& a, const Vector<D>& b);
 
-template <typename T>
-class Matrix;
+template <std::size_t D>
+double operator+(const Vector<D>& a, const Vector<D>& b) { return add(a, b); }
 
-template <typename T>
-class Vector {
+// Subtracts Vector b from Vector a.
+template <std::size_t D>
+Vector<D> subtract(const Vector<D>& a, const Vector<D>& b);
 
-    private:
+template <std::size_t D>
+Vector<D> operator-(const Vector<D>& a, const Vector<D>& b) { return subtract(a, b); }
 
-        unsigned int m_dimension;
-        T* arr_data;
+// Scales the length of the given Vector by the given scalar.
+template <std::size_t D>
+Vector<D> scale(const Vector<D>& vector, double scalar);
 
-    public:
+template <std::size_t D>
+double operator*(const Vector<D>& vector, double scalar) { return scale(vector, scalar); }
+template <std::size_t D>
+double operator*(double scalar, const Vector<D>& vector) { return scale(vector, scalar); }
 
-        // CONSTRUCTORS AND DESTRUCTOR //
+// Calculates the dot product between Vector a and Vector b.
+template <std::size_t D>
+double dotProduct(const Vector<D>& a, const Vector<D>& b);
 
-        // Constructs a Vector with the given dimension and all values set to 0.
-        Vector(unsigned int dimension);
+template <std::size_t D>
+double operator*(const Vector<D>& a, const Vector<D>& b) { return dotProduct(a, b); };
 
-        // Constructs a Vector with the given dimension and values.
-        // PRE: values must be an array defined as T[dimension] - May result in memory errors if false.
-        Vector(unsigned int dimension, const T* values);
+// Calculates the cross product between Vector a and Vector b.
+Vector<3> crossProduct(const Vector<3>& a, const Vector<3>& b);
 
-        // Constructs a copy of the given Vector with a deep copy of arr_data.
-        Vector(const Vector<T>& vector);
+Vector<3> operator%(const Vector<3>& a, const Vector<3>& b) { return crossProduct(a, b); };
 
-        // Detroys the calling Vector by deallocating arr_data.
-        ~Vector();
+// Calculates the transformed Vector by applying the given Matrix to the given Vector.
+template <std::size_t D_input, std::size_t D_output>
+Vector<D_output> transform(const Vector<D_input>& vector, const Matrix<D_input, D_output>& matrix);
 
-        // ACCESSORS //
+template <std::size_t D_input, std::size_t D_output>
+Vector<D_output> operator*(const Vector<D_input>& vector, const Matrix<D_input, D_output>& matrix) { return transform(vector, matrix); };
+template <std::size_t D_input, std::size_t D_output>
+Vector<D_output> operator*(const Matrix<D_input, D_output>& matrix, const Vector<D_input>& vector) { return transform(vector, matrix); };
 
-        // Returns the m_dimension of the calling Vector.
-        unsigned int getDimension() const;
+// Calculates the determinant of the given Matrix.
+template <std::size_t W, std::size_t H>
+double determinent(const Matrix<W, H>& matrix);
 
-        // Calculates and returns the length of the calling Vector.
-        double getLength() const;
 
-        // Calculates and returns the normalized Vector of the calling Vector.
-        Vector<T> getNormalizedVector() const;
+template <std::size_t W, std::size_t H>
+Vector<W> row(const Matrix<W, H>& matrix, unsigned int index);
 
-        // Calculates and returns a Vector which results from scaling the calling Vector by the given scalar.
-        Vector<T> scale(double scalar) const;
+template <std::size_t W, std::size_t H>
+Vector<H> column(const Matrix<W, H>& matrix, unsigned int index);
 
-        // Calculates a vector dot product between the calling Vector and the argument Vector and returns the resulting double value.
-        // PRE: this->m_dimension == vector.m_dimension - Throws dimension_mismatch if false.
-        double dotProduct(const Vector<T>& vector) const;
+// Calculates the transpose Matrix of the given Matrix.
+template <std::size_t W, std::size_t H>
+Matrix<H, W> transpose(const Matrix<W, H>& matrix);
 
-        // Calculates a vector cross product between the calling Vector and the argument Vector and returns the resulting Vector.
-        // PRE: this->m_dimension == 3 && vector.m_dimension == 3 - Throws dimension_mismatch if false.
-        Vector<T> crossProduct(const Vector<T>& vector) const;
+// Calculates the row reduced Matrix of the given Matrix.
+template <std::size_t W, std::size_t H>
+Matrix<W, H> reduce(const Matrix<W, H>& matrix);
 
-        // Adds together the calling Vector and the argument Vector and returns the resulting Vector.
-        // PRE: this->m_dimension == vector.m_dimension - Throws dimension_mismatch if false.
-        Vector<T> add(const Vector<T>& vector) const;
+// Calculates the inverse Matrix of the given Matrix.
+template <std::size_t W, std::size_t H>
+Matrix<W, H> inverse(const Matrix<W, H>& matrix);
 
-        // Subtracts the argument Vector from the calling Vector and returns the resulting Vector.
-        // PRE: this->m_dimension == vector.m_dimension - Throws dimension_mismatch if false.
-        Vector<T> subtract(const Vector<T>& vector) const;
+// Adds together Matrix a and Matrix b.
+template <std::size_t W, std::size_t H>
+Matrix<W, H> add(const Matrix<W, H>& a, const Matrix<W, H>& b);
 
-        // Applies the argument Matrix to the calling Vector and returns the resulting Vector.
-        // PRE: this->m_dimension = matrix.m_width - Throws dimension_mismatch if false.
-        Vector<T> applyMatrix(const Matrix<T>& matrix) const;
-        
-        // MEMBER OPERATOR OVERLOADS //
+template <std::size_t W, std::size_t H>
+Matrix<W, H> operator+(const Matrix<W, H>& a, const Matrix<W, H>& b) { return add(a, b); }
 
-        // Assignment operator. Reconstructs the calling Vector to have the same m_dimension as the argument Vector and a deep copy of the m_data in the argument Vector.
-        Vector<T>& operator=(const Vector<T>& vector) {
+// Subtracts Matrix b from Matrix a.
+template <std::size_t W, std::size_t H>
+Matrix<W, H> subtract(const Matrix<W, H>& a, const Matrix<W, H>& b);
 
-            // Protect against self assignment.
-            if (this == &vector)
-                return *this;
+template <std::size_t W, std::size_t H>
+Matrix<W, H> operator-(const Matrix<W, H>& a, const Matrix<W, H>& b) { return subtract(a, b); }
 
-            if (arr_data != NULL)
-                delete [] arr_data;
+// Composes Matrix a and Matrix b together.
+template <std::size_t W, std::size_t H, std::size_t D>
+Matrix<W, H> compose(const Matrix<D, H>& a, const Matrix<W, D>& b);
 
-            m_dimension = vector.getDimension();
-            if (m_dimension == 0)
-                arr_data = NULL;
-            else
-                arr_data = new T[m_dimension];
-            for (unsigned int i = 0; i < m_dimension; ++i)
-                arr_data[i] = vector[i];
+template <std::size_t W, std::size_t H, std::size_t D>
+Matrix<W, H> operator*(const Matrix<D, H>& a, const Matrix<W, D>& b) { return compose(a, b); }
 
-            return *this;
-        }
-
-        // Array subscript operator. Returns a reference to a value in arr_data.
-        // PRE: index < this->dimension - Throws std::out_of_range if false.
-        T& operator[](unsigned int index) const {
-            
-            // Protect against out of range indecies.
-            if (index >= m_dimension)
-                throw std::out_of_range("An index of " + std::to_string(index) + " is out of range of a " + std::to_string(m_dimension) + "-dimensional Vector.");
-            return arr_data[index];
-        }
-};
-
-template <typename T>
-class Matrix {
-
-    private:
-
-        unsigned int m_width;
-        unsigned int m_height;
-        Vector<T>* arr_data;       // Each Vector is a column in the Matrix.
-
-    public:
-
-        // CONSTRUCTORS AND DESTRUCTORS //
-
-        // Constructs a Matrix with the given width and height and all values in arr_data set to 0.
-        Matrix(unsigned int width, unsigned int height);
-
-        // Constructs a Matrix with the given width, height, and values.
-        // PRE: values must be an 2-dimensional array defined as T[width][height] - May result in memory errors if false.
-        Matrix(unsigned int width, unsigned int height, const T** values);
-
-        // Constructs a copy of the given Vector with a deep copy of arr_data.
-        Matrix(const Matrix<T>& matrix);
-
-        // Detroys the calling Matrix by deallocating arr_data.
-        ~Matrix();
-
-        // ACCESSORS //
-
-        // Returns the m_width of the calling Matrix.
-        unsigned int getWidth() const;
-
-        // Returns the m_height of the calling Matrix.
-        unsigned int getHeight() const;
-
-        // Calculates the transpose of the calling Matrix and returns the resulting Matrix.
-        Matrix<T> getTransposedMatrix() const;
-
-        Matrix<T> getReducedMatrix() const;
-
-        Matrix<T> getInverseMatrix() const;
-
-        double getDeterminant() const;
-
-        Vector<T> getRow(unsigned int index) const;
-
-        Vector<T> getColumn(unsigned int index) const;
-
-        Matrix<T> scale(unsigned int scalar) const;
-
-        Vector<T> applyToVector(const Vector<T>& vector) const;
-
-        Matrix<T> compose(const Matrix<T>& matrix) const;
-
-        Matrix<T> add(const Matrix<T>& matrix) const;
-
-        Matrix<T> subtract(const Matrix<T>& matrix) const;
-
-        // MEMBER OPERATOR OVERLOADS //
-
-        Matrix<T>& operator=(const Matrix<T>& matrix) {
-
-            return *this;
-        }
-
-        Vector<T>& operator[](unsigned int index) {
-
-            // Protect against out of range indecies.
-            if (index >= m_width)
-                throw std::out_of_range("An index of " + std::to_string(index) + " is out of range of a " + std::to_string(m_width) + " value wide Matrix.");
-            return arr_data[index];
-        }
-};
-#include "Vector.inl"
-#include "Matrix.inl"
+#include "vectorMath.inl"
