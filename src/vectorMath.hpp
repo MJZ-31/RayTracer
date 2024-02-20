@@ -1,6 +1,7 @@
 #include <array>
 #include <concepts>
 #include <initializer_list>
+#include <cmath>
 
 // Define the concept of real numbers, which includes any integral or floating point numerical type.
 template <typename T>
