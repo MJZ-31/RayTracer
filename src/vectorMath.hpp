@@ -61,20 +61,33 @@ class Vector : public std::array<T, D> {
             E. Vector<int, 3> vector { 1, 2, 3, 4 } --> [2]
                                                         [3]
         */
-        Vector(const std::initializer_list<T>& list) : Vector() {
+        template<std::convertible_to<T> U>
+        Vector(const std::initializer_list<U>& list) : Vector() {
 
             if (list.size() == 0)
                 return;
             else if (list.size() == 1) {
 
                 for (unsigned int i = 0; i < D; ++i)
-                    (*this)[i] = *list.begin();
+                    (*this)[i] = static_cast<T>(*list.begin());
             }
             else {
 
                 for (unsigned int i = 0; i < D && i < list.size(); ++i)
-                    (*this)[i] = *(list.begin() + i);
+                    (*this)[i] = static_cast<T>(*(list.begin() + i));
             }
+        }
+
+        /*
+            Constructs a copy of the given Vector.
+
+            vector: Vector to copy.
+        */
+        template<std::convertible_to<T> U>
+        Vector(const Vector<U, D>& vector) {
+
+            for (unsigned int i = 0; i < D; ++i)
+                (*this)[i] = static_cast<T>(vector[i]);
         }
 };
 
@@ -150,7 +163,8 @@ class Matrix : public std::array<Vector<T, H>, W> {
             H. Matrix<int, 2, 3> matrix { { 1, 2, 3, 4 }, { 5, 6, 7, 8 } }; --> [2 6]
                                                                                 [3 7]
         */
-        Matrix(const std::initializer_list<Vector<T, H>>& list) : Matrix() {
+        template<std::convertible_to<T> U>
+        Matrix(const std::initializer_list<std::initializer_list<U>>& list) : Matrix() {
 
             if (list.size() == 0)
                 return;
@@ -164,6 +178,18 @@ class Matrix : public std::array<Vector<T, H>, W> {
                 for (unsigned int i = 0; i < W && i < list.size(); ++i)
                     (*this)[i] = Vector<T, H>(*(list.begin() + i));
             }
+        }
+
+        /*
+            Constructs a copy of the given Matrix.
+
+            matrix: Matrix to copy.
+        */
+        template<std::convertible_to<T> U>
+        Matrix(const Matrix<U, W, H>& matrix) {
+
+            for (unsigned int i = 0; i < W; ++i)
+                (*this)[i] = matrix[i];
         }
 };
 
