@@ -395,5 +395,3 @@ Matrix<std::common_type_t<T1, T2>, W, H> operator*(const Matrix<T1, D, H>& a, co
 
 template <ScalarTypes T1, ScalarTypes T2>
 Vector<std::common_type_t<T1, T2>, 3> operator%(const Vector<T1, 3>& a, const Vector<T2, 3>& b) { return crossProduct(a, b); };
-
-#include "vectorMath.inl"
