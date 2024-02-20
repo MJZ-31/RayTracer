@@ -27,8 +27,8 @@ class Vector : public std::array<T, D> {
         */
         Vector() {
 
-            for (unsigned int i = 0; i < D; ++i)
-                (*this)[i] = static_cast<T>(0);
+            for (unsigned int i_dimension = 0; i_dimension < D; ++i_dimension)
+                (*this)[i_dimension] = static_cast<T>(0);
         }
 
         /*
@@ -69,13 +69,13 @@ class Vector : public std::array<T, D> {
                 return;
             else if (list.size() == 1) {
 
-                for (unsigned int i = 0; i < D; ++i)
-                    (*this)[i] = static_cast<T>(*list.begin());
+                for (unsigned int i_dimension = 0; i_dimension < D; ++i_dimension)
+                    (*this)[i_dimension] = static_cast<T>(*list.begin());
             }
             else {
 
-                for (unsigned int i = 0; i < D && i < list.size(); ++i)
-                    (*this)[i] = static_cast<T>(*(list.begin() + i));
+                for (unsigned int i_dimension = 0; i_dimension < D && i_dimension < list.size(); ++i_dimension)
+                    (*this)[i_dimension] = static_cast<T>(*(list.begin() + i_dimension));
             }
         }
 
@@ -87,8 +87,8 @@ class Vector : public std::array<T, D> {
         template<std::convertible_to<T> U>
         Vector(const Vector<U, D>& vector) {
 
-            for (unsigned int i = 0; i < D; ++i)
-                (*this)[i] = static_cast<T>(vector[i]);
+            for (unsigned int i_dimension = 0; i_dimension < D; ++i_dimension)
+                (*this)[i_dimension] = static_cast<T>(vector[i_dimension]);
         }
 };
 
@@ -113,8 +113,8 @@ class Matrix : public std::array<Vector<T, H>, W> {
         */
         Matrix() {
 
-            for (unsigned int i = 0; i < W; ++i)
-                (*this)[i] = Vector<T, H>();
+            for (unsigned int i_columns = 0; i_columns < W; ++i_columns)
+                (*this)[i_columns] = Vector<T, H>();
         }
 
         /*
@@ -171,13 +171,13 @@ class Matrix : public std::array<Vector<T, H>, W> {
                 return;
             else if (list.size() == 1) {
 
-                for (unsigned int i = 0; i < W; ++i)
-                    (*this)[i] = Vector<T, H>(*list.begin());
+                for (unsigned int i_columns = 0; i_columns < W; ++i_columns)
+                    (*this)[i_columns] = Vector<T, H>(*list.begin());
             }
             else {
 
-                for (unsigned int i = 0; i < W && i < list.size(); ++i)
-                    (*this)[i] = Vector<T, H>(*(list.begin() + i));
+                for (unsigned int i_columns = 0; i_columns < W && i_columns < list.size(); ++i_columns)
+                    (*this)[i_columns] = Vector<T, H>(*(list.begin() + i_columns));
             }
         }
 
@@ -189,8 +189,8 @@ class Matrix : public std::array<Vector<T, H>, W> {
         template<std::convertible_to<T> U>
         Matrix(const Matrix<U, W, H>& matrix) {
 
-            for (unsigned int i = 0; i < W; ++i)
-                (*this)[i] = matrix[i];
+            for (unsigned int i_columns = 0; i_columns < W; ++i_columns)
+                (*this)[i_columns] = matrix[i_columns];
         }
 };
 
@@ -199,8 +199,8 @@ template <ScalarTypes T, std::size_t D>
 double length(const Vector<T, D>& vector) {
 
     double output = 0;
-    for (unsigned int i = 0; i < D; ++i)
-        output += pow(vector[i], 2);
+    for (unsigned int i_dimension = 0; i_dimension < D; ++i_dimension)
+        output += pow(vector[i_dimension], 2);
     return sqrt(output);
 }
 
@@ -209,8 +209,8 @@ template <ScalarTypes T1, ScalarTypes T2, std::size_t D>
 Vector<std::common_type_t<T1, T2>, D> add(const Vector<T1, D>& a, const Vector<T2, D>& b) {
 
     Vector<std::common_type_t<T1, T2>, D> output;
-    for (unsigned int i = 0; i < D; ++i)
-        output[i] = a[i] + b[i];
+    for (unsigned int i_dimension = 0; i_dimension < D; ++i_dimension)
+        output[i_dimension] = a[i_dimension] + b[i_dimension];
     return output;
 }
 
@@ -219,8 +219,8 @@ template <ScalarTypes T1, ScalarTypes T2, std::size_t D>
 Vector<std::common_type_t<T1, T2>, D> subtract(const Vector<T1, D>& a, const Vector<T2, D>& b) {
 
     Vector<std::common_type_t<T1, T2>, D> output;
-    for (unsigned int i = 0; i < D; ++i)
-        output[i] = a[i] - b[i];
+    for (unsigned int i_dimension = 0; i_dimension < D; ++i_dimension)
+        output[i_dimension] = a[i_dimension] - b[i_dimension];
     return output;
 }
 
@@ -229,8 +229,8 @@ template <ScalarTypes T1, ScalarTypes T2, std::size_t D>
 Vector<std::common_type_t<T1, T2>, D> scale(const Vector<T1, D>& vector, T2 scalar) {
 
     Vector<std::common_type_t<T1, T2>, D> output;
-    for (unsigned int i = 0; i < D; ++i)
-        output[i] = vector[i] * scalar;
+    for (unsigned int i_dimension = 0; i_dimension < D; ++i_dimension)
+        output[i_dimension] = vector[i_dimension] * scalar;
     return output;
 }
 
@@ -239,8 +239,8 @@ template <ScalarTypes T1, ScalarTypes T2, std::size_t D>
 std::common_type_t<T1, T2> dotProduct(const Vector<T1, D>& a, const Vector<T2, D>& b) {
 
     std::common_type_t<T1, T2> output = static_cast<std::common_type_t<T1, T2>>(0);
-    for (unsigned int i = 0; i < D; ++i)
-        output += a[i] * b[i];
+    for (unsigned int i_dimension = 0; i_dimension < D; ++i_dimension)
+        output += a[i_dimension] * b[i_dimension];
     return output;
 }
 
@@ -249,24 +249,24 @@ template <ScalarTypes T1, ScalarTypes T2>
 Vector<std::common_type_t<T1, T2>, 3> crossProduct(const Vector<T1, 3>& a, const Vector<T2, 3>& b) {
 
     Vector<std::common_type_t<T1, T2>, 3> output;
-    for (unsigned int i = 0; i < 3; ++i)
-        output[i] = a[(i + 1) % 3] * b[(i + 2) % 3] - a[(i + 2) % 3] * b[(i + 1) % 3];
+    for (unsigned int i_dimension = 0; i_dimension < 3; ++i_dimension)
+        output[i_dimension] = a[(i_dimension + 1) % 3] * b[(i_dimension + 2) % 3] - a[(i_dimension + 2) % 3] * b[(i_dimension + 1) % 3];
     return output;
 }
 
 // Calculates the transformed Vector by applying the given Matrix to the given Vector.
-template <ScalarTypes T, std::size_t D_input, std::size_t D_output>
-Vector<T, D_output> transform(const Vector<T, D_input>& vector, const Matrix<T, D_input, D_output>& matrix) {
+template <ScalarTypes T, std::size_t D1, std::size_t D2>
+Vector<T, D2> transform(const Vector<T, D1>& vector, const Matrix<T, D1, D2>& matrix) {
 
-    Vector<T, D_output> output;
-    for (unsigned int i = 0; i < D_output; ++i)
-        output[i] = dotProduct(vector, row(matrix, i));
+    Vector<T, D2> output;
+    for (unsigned int i_dimension = 0; i_dimension < D2; ++i_dimension)
+        output[i_dimension] = dotProduct(vector, row(matrix, i_dimension));
     return output;
 }
 
 // Calculates the determinant of the given Matrix.
 template <ScalarTypes T, std::size_t W, std::size_t H>
-T determinant(const Matrix<T, W, H>& matrix) {
+T determinant(const Matrix<T, W, H>& matrix) { // TODO
 
     return 0;
 }
@@ -276,8 +276,8 @@ template <ScalarTypes T, std::size_t W, std::size_t H>
 Vector<T, W> row(const Matrix<T, W, H>& matrix, unsigned int index) {
 
     Vector<T, W> output;
-    for (unsigned int i = 0; i < W; ++i)
-        output[i] = matrix[i][index];
+    for (unsigned int i_columns = 0; i_columns < W; ++i_columns)
+        output[i_columns] = matrix[i_columns][index];
     return output;
 }
 
@@ -286,8 +286,8 @@ template <ScalarTypes T, std::size_t W, std::size_t H>
 Vector<T, H> column(const Matrix<T, W, H>& matrix, unsigned int index) {
 
     Vector<T, H> output;
-    for (unsigned int i = 0; i < H; ++i)
-        output[i] = matrix[index][i];
+    for (unsigned int i_rows = 0; i_rows < H; ++i_rows)
+        output[i_rows] = matrix[index][i_rows];
     return output;
 }
 
@@ -296,42 +296,80 @@ template <ScalarTypes T, std::size_t W, std::size_t H>
 Matrix<T, H, W> transpose(const Matrix<T, W, H>& matrix) {
 
     Matrix<T, H, W> output;
-    for (unsigned int i = 0; i < W; ++i) {
+    for (unsigned int i_columns = 0; i_columns < W; ++i_columns) {
 
-        for (unsigned int u = 0; u < H; ++u)
-            output[u][i] = matrix[i][u];
+        for (unsigned int i_rows = 0; i_rows < H; ++i_rows)
+            output[i_rows][i_columns] = matrix[i_columns][i_rows];
     }
     return output;
 }
 
 // Calculates the row reduced Matrix of the given Matrix.
-template <ScalarTypes T, std::size_t W, std::size_t H>
-Matrix<T, W, H> reduce(const Matrix<T, W, H>& matrix) {
+// template <ScalarTypes T, std::size_t W, std::size_t H>
+// Matrix<double, W, H> reduce(const Matrix<T, W, H>& matrix) {
 
-    Matrix<T, W, H> output;
-    
-    return output;
-}
+//     Matrix<T, W, H> output = matrix;
+
+//     for (unsigned int i_pivot = 0; i_pivot < W && i_pivot < H; ++i_pivot) {
+
+//         for (unsigned int i_rows = i_pivot; i_rows < H; ++i_rows) {
+
+//             float pivot = output[i_pivot][i_rows];
+
+//             if (pivot != 0) {
+
+//                 for (unsigned int i_columns = 0; i_columns < W; ++i_columns) {
+
+//                     output[i_columns][i_rows] /= pivot;
+//                 }
+//             }
+//         }
+
+//         for (unsigned int i_rows = 0; i_rows < H; ++i_rows) {
+
+//             float factor = output[i_pivot][i_rows];
+
+//             if (i_rows != i_pivot) {
+
+//                 for (unsigned int i_columns = 0; i_columns < W; ++i_columns) {
+
+//                     output[i_columns][i_rows] -= output[i_columns][i_pivot] * factor;
+//                 }
+//             }
+//         }
+
+//         for (unsigned int i_columns = 0; i_columns < W; ++i_columns) {
+
+//             for (unsigned int i_rows = 0; i_rows < H; ++i_rows) {
+
+//                 if (output[i_columns][i_rows] < 0.0001 && output[i_columns][i_rows] > -0.0001)
+//                     output[i_columns][i_rows] = 0;
+//             }
+//         }
+//     }
+
+//     return output;
+// }
 
 // Calculates the inverse Matrix of the given Matrix.
-template <ScalarTypes T, std::size_t W, std::size_t H>
-Matrix<T, W, H> inverse(const Matrix<T, W, H>& matrix) {
+// template <ScalarTypes T, std::size_t W, std::size_t H>
+// Matrix<T, W, H> inverse(const Matrix<T, W, H>& matrix) { // TODO
 
-    Matrix<T, W, H> output;
-    Matrix<T, 2 * W, H> extended;
+//     Matrix<T, W, H> output;
+//     Matrix<T, 2 * W, H> extended;
 
-    return output;
-}
+//     return output;
+// }
 
 // Adds together Matrix a and Matrix b.
 template <ScalarTypes T1, ScalarTypes T2, std::size_t W, std::size_t H>
 Matrix<std::common_type_t<T1, T2>, W, H> add(const Matrix<T1, W, H>& a, const Matrix<T2, W, H>& b) {
 
     Matrix<std::common_type_t<T1, T2>, W, H> output;
-    for (unsigned int i = 0; i < W; ++i) {
+    for (unsigned int i_columns = 0; i_columns < W; ++i_columns) {
 
-        for (unsigned int u = 0; u < H; ++u)
-            output[i][u] = a[i][u] + b[i][u];
+        for (unsigned int i_rows = 0; i_rows < H; ++i_rows)
+            output[i_columns][i_rows] = a[i_columns][i_rows] + b[i_columns][i_rows];
     }
     return output;
 }
@@ -341,10 +379,10 @@ template <ScalarTypes T1, ScalarTypes T2, std::size_t W, std::size_t H>
 Matrix<std::common_type_t<T1, T2>, W, H> subtract(const Matrix<T1, W, H>& a, const Matrix<T2, W, H>& b) {
 
     Matrix<std::common_type_t<T1, T2>, W, H> output;
-    for (unsigned int i = 0; i < W; ++i) {
+    for (unsigned int i_columns = 0; i_columns < W; ++i_columns) {
 
-        for (unsigned int u = 0; u < H; ++u)
-            output[i][u] = a[i][u] - b[i][u];
+        for (unsigned int i_rows = 0; i_rows < H; ++i_rows)
+            output[i_columns][i_rows] = a[i_columns][i_rows] - b[i_columns][i_rows];
     }
     return output;
 }
@@ -354,10 +392,10 @@ template <ScalarTypes T1, ScalarTypes T2, std::size_t W, std::size_t H, std::siz
 Matrix<std::common_type_t<T1, T2>, W, H> compose(const Matrix<T1, D, H>& a, const Matrix<T2, W, D>& b) {
 
     Matrix<std::common_type_t<T1, T2>, W, H> output;
-    for (unsigned int i = 0; i < W; ++i) {
+    for (unsigned int i_columns = 0; i_columns < W; ++i_columns) {
 
-        for (unsigned int u = 0; u < H; ++u)
-            output[i][u] = dotProduct(row(a, i), column(b, u));
+        for (unsigned int i_rows = 0; i_rows < H; ++i_rows)
+            output[i_columns][i_rows] = dotProduct(row(a, i_rows), column(b, i_columns));
     }
     return output;
 }
