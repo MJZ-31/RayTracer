@@ -25,11 +25,7 @@ class Vector : public std::array<T, D> {
             Vector<int, 3> vector; --> [0]
                                        [0]
         */
-        Vector() {
-
-            for (std::size_t i_dimension = 0; i_dimension < D; ++i_dimension)
-                (*this)[i_dimension] = static_cast<T>(0);
-        }
+        Vector();
 
         /*
             Constructs a Vector with its scalars set to the values in the given initializer_list.
@@ -62,34 +58,16 @@ class Vector : public std::array<T, D> {
             E. Vector<int, 3> vector { 1, 2, 3, 4 } --> [2]
                                                         [3]
         */
-        template<std::convertible_to<T> U>
-        Vector(const std::initializer_list<U>& list) : Vector() {
-
-            if (list.size() == 0)
-                return;
-            else if (list.size() == 1) {
-
-                for (std::size_t i_dimension = 0; i_dimension < D; ++i_dimension)
-                    (*this)[i_dimension] = static_cast<T>(*list.begin());
-            }
-            else {
-
-                for (std::size_t i_dimension = 0; i_dimension < D && i_dimension < list.size(); ++i_dimension)
-                    (*this)[i_dimension] = static_cast<T>(*(list.begin() + i_dimension));
-            }
-        }
+        template <std::convertible_to<T> U>
+        Vector(const std::initializer_list<U>& list);
 
         /*
             Constructs a copy of the given Vector.
 
             vector: Vector to copy.
         */
-        template<std::convertible_to<T> U>
-        Vector(const Vector<U, D>& vector) {
-
-            for (std::size_t i_dimension = 0; i_dimension < D; ++i_dimension)
-                (*this)[i_dimension] = static_cast<T>(vector[i_dimension]);
-        }
+        template <std::convertible_to<T> U>
+        Vector(const Vector<U, D>& vector);
 };
 
 /*
@@ -111,11 +89,7 @@ class Matrix : public std::array<Vector<T, H>, W> {
             Matrix<int, 3, 3> matrix; --> [0 0 0]
                                           [0 0 0]
         */
-        Matrix() {
-
-            for (std::size_t i_columns = 0; i_columns < W; ++i_columns)
-                (*this)[i_columns] = Vector<T, H>();
-        }
+        Matrix();
 
         /*
             Constructs a Matrix with its scalars set to the values in the given initializer_list.
@@ -164,82 +138,19 @@ class Matrix : public std::array<Vector<T, H>, W> {
             H. Matrix<int, 2, 3> matrix { { 1, 2, 3, 4 }, { 5, 6, 7, 8 } }; --> [2 6]
                                                                                 [3 7]
         */
-        template<std::convertible_to<T> U>
-        Matrix(const std::initializer_list<std::initializer_list<U>>& list) : Matrix() {
-
-            if (list.size() == 0)
-                return;
-            else if (list.size() == 1) {
-
-                for (std::size_t i_columns = 0; i_columns < W; ++i_columns)
-                    (*this)[i_columns] = Vector<T, H>(*list.begin());
-            }
-            else {
-
-                for (std::size_t i_columns = 0; i_columns < W && i_columns < list.size(); ++i_columns)
-                    (*this)[i_columns] = Vector<T, H>(*(list.begin() + i_columns));
-            }
-        }
+        template <std::convertible_to<T> U>
+        Matrix(const std::initializer_list<std::initializer_list<U>>& list);
 
         /*
             Constructs a copy of the given Matrix.
 
             matrix: Matrix to copy.
         */
-        template<std::convertible_to<T> U>
-        Matrix(const Matrix<U, W, H>& matrix) {
-
-            for (std::size_t i_columns = 0; i_columns < W; ++i_columns)
-                (*this)[i_columns] = matrix[i_columns];
-        }
+        template <std::convertible_to<T> U>
+        Matrix(const Matrix<U, W, H>& matrix);
 };
 
-// Function prototypes
-
-template <ScalarTypes T, std::size_t D>
-double length(const Vector<T, D>& vector);
-
-template <std::convertible_to<double> T, std::size_t D>
-Vector<double, D> normalize(const Vector<T, D>& vector);
-
-template <ScalarTypes T1, ScalarTypes T2, std::size_t D>
-Vector<std::common_type_t<T1, T2>, D> add(const Vector<T1, D>& a, const Vector<T2, D>& b);
-
-template <ScalarTypes T1, ScalarTypes T2, std::size_t D>
-Vector<std::common_type_t<T1, T2>, D> subtract(const Vector<T1, D>& a, const Vector<T2, D>& b);
-
-template <ScalarTypes T1, ScalarTypes T2, std::size_t D>
-Vector<std::common_type_t<T1, T2>, D> scale(const Vector<T1, D>& vector, T2 factor);
-
-template <ScalarTypes T1, ScalarTypes T2, std::size_t D>
-std::common_type_t<T1, T2> dotProduct(const Vector<T1, D>& a, const Vector<T2, D>& b);
-
-template <ScalarTypes T1, ScalarTypes T2>
-Vector<std::common_type_t<T1, T2>, 3> crossProduct(const Vector<T1, 3>& a, const Vector<T2, 3>& b);
-
-template <ScalarTypes T1, ScalarTypes T2, std::size_t D1, std::size_t D2>
-Vector<std::common_type<T1, T2>, D2> transform(const Vector<T1, D1>& vector, const Matrix<T2, D1, D2>& matrix);
-
-template <ScalarTypes T, std::size_t W, std::size_t H>
-Vector<T, W> row(const Matrix<T, W, H>& matrix, std::size_t index);
-
-template <ScalarTypes T, std::size_t W, std::size_t H>
-Vector<T, H> column(const Matrix<T, W, H>& matrix, std::size_t index);
-
-template <ScalarTypes T, std::size_t W, std::size_t H>
-Matrix<T, H, W> transpose(const Matrix<T, W, H>& matrix);
-
-// template <ScalarTypes T, std::size_t W, std::size_t H>
-// Matrix<double, W, H> reduce(const Matrix<T, W, H>& matrix);
-
-template <ScalarTypes T1, ScalarTypes T2, std::size_t W, std::size_t H>
-Matrix<std::common_type_t<T1, T2>, W, H> add(const Matrix<T1, W, H>& a, const Matrix<T2, W, H>& b);
-
-template <ScalarTypes T1, ScalarTypes T2, std::size_t W, std::size_t H>
-Matrix<std::common_type_t<T1, T2>, W, H> subtract(const Matrix<T1, W, H>& a, const Matrix<T2, W, H>& b);
-
-template <ScalarTypes T1, ScalarTypes T2, std::size_t W, std::size_t H, std::size_t D>
-Matrix<std::common_type_t<T1, T2>, W, H> compose(const Matrix<T1, D, H>& a, const Matrix<T2, W, D>& b);
+// Calculation Function Prototypes //
 
 /*
     Calculates the length of the given Vector.
@@ -253,13 +164,7 @@ Matrix<std::common_type_t<T1, T2>, W, H> compose(const Matrix<T1, D, H>& a, cons
     No equivalent operator overloads.
 */
 template <ScalarTypes T, std::size_t D>
-double length(const Vector<T, D>& vector) {
-
-    double output = 0;
-    for (std::size_t i_dimension = 0; i_dimension < D; ++i_dimension)
-        output += pow(vector[i_dimension], 2);
-    return sqrt(output);
-}
+double length(const Vector<T, D>& vector);
 
 /*
     Normalizes a given Vector.
@@ -273,10 +178,7 @@ double length(const Vector<T, D>& vector) {
     No equivalent operator overloads.
 */
 template <std::convertible_to<double> T, std::size_t D>
-Vector<double, D> normalize(const Vector<T, D>& vector) {
-
-    return scale(vector, 1 / length(vector));
-}
+Vector<double, D> normalize(const Vector<T, D>& vector);
 
 /*
     Adds together two given Vectors.
@@ -291,13 +193,7 @@ Vector<double, D> normalize(const Vector<T, D>& vector) {
     Equivalent operator overload: operator+(a, b)
 */
 template <ScalarTypes T1, ScalarTypes T2, std::size_t D>
-Vector<std::common_type_t<T1, T2>, D> add(const Vector<T1, D>& a, const Vector<T2, D>& b) {
-
-    Vector<std::common_type_t<T1, T2>, D> output;
-    for (std::size_t i_dimension = 0; i_dimension < D; ++i_dimension)
-        output[i_dimension] = a[i_dimension] + b[i_dimension];
-    return output;
-}
+Vector<std::common_type_t<T1, T2>, D> add(const Vector<T1, D>& a, const Vector<T2, D>& b);
 
 /*
     Subtracts two given Vectors.
@@ -312,13 +208,7 @@ Vector<std::common_type_t<T1, T2>, D> add(const Vector<T1, D>& a, const Vector<T
     Equivalent operator overload: operator-(a, b)
 */
 template <ScalarTypes T1, ScalarTypes T2, std::size_t D>
-Vector<std::common_type_t<T1, T2>, D> subtract(const Vector<T1, D>& a, const Vector<T2, D>& b) {
-
-    Vector<std::common_type_t<T1, T2>, D> output;
-    for (std::size_t i_dimension = 0; i_dimension < D; ++i_dimension)
-        output[i_dimension] = a[i_dimension] - b[i_dimension];
-    return output;
-}
+Vector<std::common_type_t<T1, T2>, D> subtract(const Vector<T1, D>& a, const Vector<T2, D>& b);
 
 /*
     Scales the length of a given Vector by a given factor.
@@ -334,13 +224,7 @@ Vector<std::common_type_t<T1, T2>, D> subtract(const Vector<T1, D>& a, const Vec
     Equivalent operator overloads: operator*(vector, factor) or operator*(factor, vector)
 */
 template <ScalarTypes T1, ScalarTypes T2, std::size_t D>
-Vector<std::common_type_t<T1, T2>, D> scale(const Vector<T1, D>& vector, T2 factor) {
-
-    Vector<std::common_type_t<T1, T2>, D> output;
-    for (std::size_t i_dimension = 0; i_dimension < D; ++i_dimension)
-        output[i_dimension] = vector[i_dimension] * factor;
-    return output;
-}
+Vector<std::common_type_t<T1, T2>, D> scale(const Vector<T1, D>& vector, T2 factor);
 
 /*
     Calculates the dot product between two given Vectors.
@@ -355,13 +239,7 @@ Vector<std::common_type_t<T1, T2>, D> scale(const Vector<T1, D>& vector, T2 fact
     Equivalent operator overload: operator*(a, b)
 */
 template <ScalarTypes T1, ScalarTypes T2, std::size_t D>
-std::common_type_t<T1, T2> dotProduct(const Vector<T1, D>& a, const Vector<T2, D>& b) {
-
-    std::common_type_t<T1, T2> output = static_cast<std::common_type_t<T1, T2>>(0);
-    for (std::size_t i_dimension = 0; i_dimension < D; ++i_dimension)
-        output += a[i_dimension] * b[i_dimension];
-    return output;
-}
+std::common_type_t<T1, T2> dotProduct(const Vector<T1, D>& a, const Vector<T2, D>& b);
 
 /*
     Calculates the cross product between two given Vectors.
@@ -377,13 +255,7 @@ std::common_type_t<T1, T2> dotProduct(const Vector<T1, D>& a, const Vector<T2, D
     Equivalent operator overload: operator%(a, b)
 */
 template <ScalarTypes T1, ScalarTypes T2>
-Vector<std::common_type_t<T1, T2>, 3> crossProduct(const Vector<T1, 3>& a, const Vector<T2, 3>& b) {
-
-    Vector<std::common_type_t<T1, T2>, 3> output;
-    for (std::size_t i_dimension = 0; i_dimension < 3; ++i_dimension)
-        output[i_dimension] = a[(i_dimension + 1) % 3] * b[(i_dimension + 2) % 3] - a[(i_dimension + 2) % 3] * b[(i_dimension + 1) % 3];
-    return output;
-}
+Vector<std::common_type_t<T1, T2>, 3> crossProduct(const Vector<T1, 3>& a, const Vector<T2, 3>& b);
 
 /*
     Transforms a given Vector using a given Matrix.
@@ -400,13 +272,7 @@ Vector<std::common_type_t<T1, T2>, 3> crossProduct(const Vector<T1, 3>& a, const
     Equivalent operator overloads: operator*(vector, matrix) or operator*(matrix, vector)
 */
 template <ScalarTypes T1, ScalarTypes T2, std::size_t D1, std::size_t D2>
-Vector<std::common_type<T1, T2>, D2> transform(const Vector<T1, D1>& vector, const Matrix<T2, D1, D2>& matrix) {
-
-    Vector<std::common_type<T1, T2>, D2> output;
-    for (std::size_t i_dimension = 0; i_dimension < D2; ++i_dimension)
-        output[i_dimension] = dotProduct(vector, row(matrix, i_dimension));
-    return output;
-}
+Vector<std::common_type<T1, T2>, D2> transform(const Vector<T1, D1>& vector, const Matrix<T2, D1, D2>& matrix);
 
 /*
     Retrieves a row from a given Matrix at a given row index.
@@ -422,13 +288,7 @@ Vector<std::common_type<T1, T2>, D2> transform(const Vector<T1, D1>& vector, con
     No equivalent operator overloads.
 */
 template <ScalarTypes T, std::size_t W, std::size_t H>
-Vector<T, W> row(const Matrix<T, W, H>& matrix, std::size_t index) {
-
-    Vector<T, W> output;
-    for (std::size_t i_columns = 0; i_columns < W; ++i_columns)
-        output[i_columns] = matrix[i_columns][index];
-    return output;
-}
+Vector<T, W> row(const Matrix<T, W, H>& matrix, std::size_t index);
 
 /*
     Retrieves a column from a given Matrix at a given column index.
@@ -444,13 +304,7 @@ Vector<T, W> row(const Matrix<T, W, H>& matrix, std::size_t index) {
     No equivalent operator overloads.
 */
 template <ScalarTypes T, std::size_t W, std::size_t H>
-Vector<T, H> column(const Matrix<T, W, H>& matrix, std::size_t index) {
-
-    Vector<T, H> output;
-    for (std::size_t i_rows = 0; i_rows < H; ++i_rows)
-        output[i_rows] = matrix[index][i_rows];
-    return output;
-}
+Vector<T, H> column(const Matrix<T, W, H>& matrix, std::size_t index);
 
 /*
     Calculates the transpose of a given Matrix.
@@ -464,66 +318,11 @@ Vector<T, H> column(const Matrix<T, W, H>& matrix, std::size_t index) {
 
     No equivalent operator overloads.
 */
-
-// Calculates the transpose Matrix of the given Matrix.
 template <ScalarTypes T, std::size_t W, std::size_t H>
-Matrix<T, H, W> transpose(const Matrix<T, W, H>& matrix) {
+Matrix<T, H, W> transpose(const Matrix<T, W, H>& matrix);
 
-    Matrix<T, H, W> output;
-    for (std::size_t i_columns = 0; i_columns < W; ++i_columns) {
-
-        for (std::size_t i_rows = 0; i_rows < H; ++i_rows)
-            output[i_rows][i_columns] = matrix[i_columns][i_rows];
-    }
-    return output;
-}
-
-// Calculates the row reduced Matrix of the given Matrix.
 // template <ScalarTypes T, std::size_t W, std::size_t H>
-// Matrix<double, W, H> reduce(const Matrix<T, W, H>& matrix) {
-
-//     Matrix<T, W, H> output = matrix;
-
-//     for (std::size_t i_pivot = 0; i_pivot < W && i_pivot < H; ++i_pivot) {
-
-//         for (std::size_t i_rows = i_pivot; i_rows < H; ++i_rows) {
-
-//             float pivot = output[i_pivot][i_rows];
-
-//             if (pivot != 0) {
-
-//                 for (std::size_t i_columns = 0; i_columns < W; ++i_columns) {
-
-//                     output[i_columns][i_rows] /= pivot;
-//                 }
-//             }
-//         }
-
-//         for (std::size_t i_rows = 0; i_rows < H; ++i_rows) {
-
-//             float factor = output[i_pivot][i_rows];
-
-//             if (i_rows != i_pivot) {
-
-//                 for (std::size_t i_columns = 0; i_columns < W; ++i_columns) {
-
-//                     output[i_columns][i_rows] -= output[i_columns][i_pivot] * factor;
-//                 }
-//             }
-//         }
-
-//         for (std::size_t i_columns = 0; i_columns < W; ++i_columns) {
-
-//             for (std::size_t i_rows = 0; i_rows < H; ++i_rows) {
-
-//                 if (output[i_columns][i_rows] < 0.0001 && output[i_columns][i_rows] > -0.0001)
-//                     output[i_columns][i_rows] = 0;
-//             }
-//         }
-//     }
-
-//     return output;
-// }
+// Matrix<double, W, H> reduce(const Matrix<T, W, H>& matrix);
 
 /*
     Adds together two given Matrices.
@@ -539,16 +338,7 @@ Matrix<T, H, W> transpose(const Matrix<T, W, H>& matrix) {
     Equivalent operator overload: operator+(a, b)
 */
 template <ScalarTypes T1, ScalarTypes T2, std::size_t W, std::size_t H>
-Matrix<std::common_type_t<T1, T2>, W, H> add(const Matrix<T1, W, H>& a, const Matrix<T2, W, H>& b) {
-
-    Matrix<std::common_type_t<T1, T2>, W, H> output;
-    for (std::size_t i_columns = 0; i_columns < W; ++i_columns) {
-
-        for (std::size_t i_rows = 0; i_rows < H; ++i_rows)
-            output[i_columns][i_rows] = a[i_columns][i_rows] + b[i_columns][i_rows];
-    }
-    return output;
-}
+Matrix<std::common_type_t<T1, T2>, W, H> add(const Matrix<T1, W, H>& a, const Matrix<T2, W, H>& b);
 
 /*
     Subtracts two given Matrices.
@@ -564,16 +354,7 @@ Matrix<std::common_type_t<T1, T2>, W, H> add(const Matrix<T1, W, H>& a, const Ma
     Equivalent operator overload: operator-(a, b)
 */
 template <ScalarTypes T1, ScalarTypes T2, std::size_t W, std::size_t H>
-Matrix<std::common_type_t<T1, T2>, W, H> subtract(const Matrix<T1, W, H>& a, const Matrix<T2, W, H>& b) {
-
-    Matrix<std::common_type_t<T1, T2>, W, H> output;
-    for (std::size_t i_columns = 0; i_columns < W; ++i_columns) {
-
-        for (std::size_t i_rows = 0; i_rows < H; ++i_rows)
-            output[i_columns][i_rows] = a[i_columns][i_rows] - b[i_columns][i_rows];
-    }
-    return output;
-}
+Matrix<std::common_type_t<T1, T2>, W, H> subtract(const Matrix<T1, W, H>& a, const Matrix<T2, W, H>& b);
 
 /*
     Composes two given Matrices together.
@@ -590,18 +371,9 @@ Matrix<std::common_type_t<T1, T2>, W, H> subtract(const Matrix<T1, W, H>& a, con
     Equivalent operator overload: operator*(a, b)
 */
 template <ScalarTypes T1, ScalarTypes T2, std::size_t W, std::size_t H, std::size_t D>
-Matrix<std::common_type_t<T1, T2>, W, H> compose(const Matrix<T1, D, H>& a, const Matrix<T2, W, D>& b) {
+Matrix<std::common_type_t<T1, T2>, W, H> compose(const Matrix<T1, D, H>& a, const Matrix<T2, W, D>& b);
 
-    Matrix<std::common_type_t<T1, T2>, W, H> output;
-    for (std::size_t i_columns = 0; i_columns < W; ++i_columns) {
-
-        for (std::size_t i_rows = 0; i_rows < H; ++i_rows)
-            output[i_columns][i_rows] = dotProduct(row(a, i_rows), column(b, i_columns));
-    }
-    return output;
-}
-
-// Operators
+// Operators Overloads //
 
 template <ScalarTypes T1, ScalarTypes T2, std::size_t D>
 Vector<std::common_type_t<T1, T2>, D> operator+(const Vector<T1, D>& a, const Vector<T2, D>& b) { return add(a, b); };
@@ -635,3 +407,5 @@ Matrix<std::common_type_t<T1, T2>, W, H> operator*(const Matrix<T1, D, H>& a, co
 
 template <ScalarTypes T1, ScalarTypes T2>
 Vector<std::common_type_t<T1, T2>, 3> operator%(const Vector<T1, 3>& a, const Vector<T2, 3>& b) { return crossProduct(a, b); };
+
+#include "vectorMath.inl"
