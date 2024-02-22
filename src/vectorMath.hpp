@@ -28,11 +28,13 @@ class Vector : public std::array<T, D> {
         Vector();
 
         /*
-            Constructs a Vector with its scalars set to the values in the given initializer_list.
+            Constructs a Vector with its scalars set to the values in a given initializer_list.
+
+            U: The containing type of the initializer_list. Must be convertible to T.
 
             list: The values which the scalars are set to.
 
-                - The size of the list is expected to be equal to D, except in either cases of
+                - The size of the list is expected to be equal to D, except in either case of
                     - An empty list, which will result in a zero Vector [B.].
                     - A list with only one value, which  will result in all scalars being set to that value [C.].
                 
@@ -62,7 +64,9 @@ class Vector : public std::array<T, D> {
         Vector(const std::initializer_list<U>& list);
 
         /*
-            Constructs a copy of the given Vector.
+            Constructs a copy of a given Vector.
+
+            U: The scalar type of the given Vector. Must be convertible to T.
 
             vector: Vector to copy.
         */
@@ -92,7 +96,7 @@ class Matrix : public std::array<Vector<T, H>, W> {
         Matrix();
 
         /*
-            Constructs a Matrix with its scalars set to the values in the given initializer_list.
+            Constructs a Matrix with its scalars set to the values in a given initializer_list.
 
             list: The values which the scalars are set to. Each Vector within the list is a column in the Matrix.
 
@@ -142,7 +146,7 @@ class Matrix : public std::array<Vector<T, H>, W> {
         Matrix(const std::initializer_list<std::initializer_list<U>>& list);
 
         /*
-            Constructs a copy of the given Matrix.
+            Constructs a copy of a given Matrix.
 
             matrix: Matrix to copy.
         */
