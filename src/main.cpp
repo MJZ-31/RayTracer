@@ -21,50 +21,64 @@ int main(int argc, char** argv) {
     // Used to define the position, orientation, and size of the viewport.
     Vector<double, 3> viewportCenter = { 0, 0, 0 };         // The center of the viewport relative to the origin.
     // Both Vectors below must be a right angle to one another.
-    Vector<double, 3> viewportHorizontalAxis = { 1, 0, 0 }; // The direction the viewport spans horizontally, relative to viewportCenter. Points "right" in the picture.
-    Vector<double, 3> viewportVerticalAxis = { 0, 1, 0 };   // The direction the viewport spans vertically, relative to viewportCenter. Points "up" in the picture.
+    Vector<double, 3> viewportHorizontalAxis = normalize(Vector<double, 3> { 1, 0, 0 }); // The direction the viewport spans horizontally, relative to viewportCenter. Points "right" in the picture.
+    Vector<double, 3> viewportVerticalAxis = normalize(Vector<double, 3> { 0, 1, 0 });   // The direction the viewport spans vertically, relative to viewportCenter. Points "up" in the picture.
 
-    unsigned int viewportWidth = 10;
-    unsigned int viewportHeight = 10;
+    unsigned int viewportWidth = 2000;
+    unsigned int viewportHeight = 2000;
 
-    unsigned int viewerDistance = 100;
+    unsigned int viewerDistance = 3000;
     Vector<double, 3> viewerPosition = viewportCenter + viewerDistance * normalize(viewportHorizontalAxis % viewportVerticalAxis);
-    std::cout << "Viewer: " << toString(viewerPosition) << std::endl;
 
-    Vector<double, 3> sphereCenter = { 0, 0, -20 };
-    unsigned int sphereRadius = 5;
+    Vector<double, 3> sphereCenter = { 0, 0, -1000 };
+    unsigned int sphereRadius = 1000;
+
+    Vector<double, 3> lightPosition = { 2000, 2000, 2000 };
+
+    png::image<png::rgba_pixel_16> image(viewportWidth, viewportHeight);
 
     for (unsigned int i_viewportWidth = 0; i_viewportWidth < viewportWidth; ++i_viewportWidth) {
 
         for (unsigned int i_viewportHeight = 0; i_viewportHeight < viewportHeight; ++i_viewportHeight) {
 
-            Vector<double, 3> pixel = viewportCenter + Vector<double, 3> { i_viewportWidth - (viewportWidth - 1) / 2.0, (viewportHeight - 1) / 2.0 - i_viewportHeight, 0.0 };
-            // std::cout << "Pixel " << std::to_string(i_viewportWidth) << ", " << std::to_string(i_viewportHeight) << ": " << toString(pixel) << std::endl;
-            // std::cout << "Ray: " << toString(pixel - viewerPosition) << std::endl;
+            Vector<double, 3> pixelPosition = viewportCenter + viewportHorizontalAxis * (i_viewportWidth - (viewportWidth - 1) / 2.0) + viewportVerticalAxis * ((viewportHeight - 1) / 2.0 - i_viewportHeight);
 
-            double a = 0;
-            for (unsigned int i_dimension = 0; i_dimension < 3; ++i_dimension)
-                a += pow(pixel[i_dimension], 2) - 2 * viewerPosition[i_dimension] * pixel[i_dimension] + pow(viewerPosition[i_dimension], 2);
+            double a = (pixelPosition - viewerPosition) * (pixelPosition - viewerPosition);
+            double b = 2 * (viewerPosition - sphereCenter) * (pixelPosition - viewerPosition);
+            double c = (viewerPosition - sphereCenter) * (viewerPosition - sphereCenter) - pow(sphereRadius, 2);
 
-            double b = 0;
-            for (unsigned int i_dimension = 0; i_dimension < 3; ++i_dimension)
-                b += 2 * (viewerPosition[i_dimension] * pixel[i_dimension] - pow(viewerPosition[i_dimension], 2) - pixel[i_dimension] * sphereCenter[i_dimension] + viewerPosition[i_dimension] * sphereCenter[i_dimension]);
+            double raystepFar = (-b + sqrt(pow(b, 2) - 4 * a * c)) / (2 * a);
+            double raystepNear = (-b - sqrt(pow(b, 2) - 4 * a * c)) / (2 * a);
 
-            double c = 0;
-            for (unsigned int i_dimension = 0; i_dimension < 3; ++i_dimension)
-                c += pow(viewerPosition[i_dimension], 2) - 2 * viewerPosition[i_dimension] * sphereCenter[i_dimension] + pow(sphereCenter[i_dimension], 2);
-            c -= pow(sphereRadius, 2);
+            Vector<double, 3> rayImpact;
+            if (std::isnan(raystepNear) || raystepNear <= 1)
+                rayImpact = viewerPosition + (pixelPosition - viewerPosition) * raystepFar;
+            else
+                rayImpact = viewerPosition + (pixelPosition - viewerPosition) * raystepNear;
 
-            // std::cout << std::to_string(a) << " " << std::to_string(b) << " " << std::to_string(c) << std::endl;
+            Vector<double, 3> N = normalize(rayImpact - sphereCenter);      // Impact surface normal.
+            Vector<double, 3> L = normalize(lightPosition - rayImpact);     // Vector to light source.
+            Vector<double, 3> V = normalize(viewerPosition - rayImpact);    // Vector to viewer.
+            Vector<double, 3> R = normalize(2 * L * N * N - L);             // Reflection of L along N.
 
-            double raystep = (-b - sqrt(pow(b, 2) - 4 * a * c)) / 2 * a;
-            // if (!std::isnan(raystep))
-                std::cout << raystep << " ";
+            double illuminationAmbient = 0.4;                           // Portion of light without direct illumination.
+            double illuminationDiffuse = fmax(N * L, 0) * 0.6;          // Portion of light which is scattered off the object.
+            double illuminationSpecular = pow(fmax(V * R, 0), 9) * 0.0; // Portion of light which is reflected directly to the viewer.
+
+            if ((!std::isnan(raystepFar) && raystepFar >= 1) || (!std::isnan(raystepNear) && raystepNear >= 1)) {
+
+                uint16_t R = (uint16_t) round(fmin(65535 * illuminationAmbient + 65535 * illuminationDiffuse + 65535 * illuminationSpecular, 65535));
+                uint16_t G = (uint16_t) round(fmin(65535 * illuminationAmbient + 65535 * illuminationDiffuse + 65535 * illuminationSpecular, 65535));
+                uint16_t B = (uint16_t) round(fmin(65535 * illuminationAmbient + 65535 * illuminationDiffuse + 65535 * illuminationSpecular, 65535));
+                image[i_viewportHeight][i_viewportWidth] = png::rgba_pixel_16(R, G, B, pow(2, 16) - 1);
+            }
+            else {
+
+                image[i_viewportHeight][i_viewportWidth] = png::rgba_pixel_16(0, 0, 0, 0);
+            }
         }
-        std::cout << std::endl;
     }
 
-    png::image<png::rgba_pixel> image(viewportWidth, viewportHeight);
     image.write("output.png");
 
     return 0;
